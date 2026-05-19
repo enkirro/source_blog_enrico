@@ -115,6 +115,18 @@
                             <button data-portal="recommendations">{{t "See all"}} {{> "icons/arrow"}}</button>
                         </section>
                     {{/if}}
+                    {{#get "tags" limit="all" order="count.posts desc"}}
+                        {{#if tags}}
+                            <section class="gh-tags-widget">
+                                <h4 class="gh-sidebar-title"><a href="/tags/">{{t "Tags"}}</a></h4>
+                                <div class="gh-tags-list">
+                                    {{#foreach tags}}
+                                        <a class="gh-article-tag" href="{{url}}">{{name}}</a>
+                                    {{/foreach}}
+                                </div>
+                            </section>
+                        {{/if}}
+                    {{/get}}
                 </div>
             </aside>
         {{/if}}
