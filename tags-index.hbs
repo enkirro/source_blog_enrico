@@ -10,21 +10,57 @@
         </div>
     </section>
 
-    <div class="gh-container gh-outer">
+    <section class="gh-container is-grid gh-outer">
         <div class="gh-container-inner gh-inner">
             <div class="gh-main">
-                {{#get "tags" limit="all" order="count.posts desc"}}
-                    <ul class="gh-tags-index-list">
-                        {{#foreach tags}}
-                            <li class="gh-tags-index-item">
-                                <a class="gh-article-tag" href="{{url}}">{{name}}</a>
-                                <span class="gh-tags-index-count">{{count.posts}}</span>
-                            </li>
-                        {{/foreach}}
-                    </ul>
+                {{#get "tags" limit="100" include="count.posts" order="count.posts desc"}}
+                    {{#if tags}}
+                        <div class="gh-feed">
+                            {{#foreach tags}}
+                                <article class="gh-card gh-tag-card">
+                                    <a class="gh-card-link" href="{{url}}">
+                                        <figure class="gh-card-image"{{#unless feature_image}}{{#if accent_color}} style="--tag-color: {{accent_color}}"{{/if}}{{/unless}}>
+                                            {{#if feature_image}}
+                                                <img
+                                                    srcset="{{img_url feature_image size="xs" format="webp"}} 160w,
+                                                            {{img_url feature_image size="s" format="webp"}} 320w,
+                                                            {{img_url feature_image size="m" format="webp"}} 600w,
+                                                            {{img_url feature_image size="l" format="webp"}} 960w,
+                                                            {{img_url feature_image size="xl" format="webp"}} 1200w"
+                                                    sizes="(max-width: 576px) 100vw, (max-width: 1199px) 50vw, 400px"
+                                                    src="{{img_url feature_image size="m"}}"
+                                                    alt=""
+                                                    loading="lazy"
+                                                >
+                                            {{else}}
+                                                {{!-- Named "label" and not "tag": a partial called tag.hbs
+                                                      shadows the tag.hbs archive template in Ghost --}}
+                                                {{> "icons/label"}}
+                                            {{/if}}
+                                        </figure>
+                                        <div class="gh-card-wrapper">
+                                            <h2 class="gh-card-title is-title">{{name}}</h2>
+                                            {{#if description}}
+                                                <p class="gh-card-excerpt is-body">{{description}}</p>
+                                            {{/if}}
+                                            <footer class="gh-card-meta">
+                                                {{#match count.posts ">" 1}}
+                                                    {{t "{count} posts" count=count.posts}}
+                                                {{else match count.posts "=" 1}}
+                                                    {{t "1 post"}}
+                                                {{else}}
+                                                    {{t "No posts"}}
+                                                {{/match}}
+                                            </footer>
+                                        </div>
+                                    </a>
+                                </article>
+                            {{/foreach}}
+                        </div>
+                    {{/if}}
                 {{/get}}
             </div>
         </div>
-    </div>
+    </section>
 
 </main>
