@@ -3785,3 +3785,9 @@ over the ones above because they come last.
     clip: rect(0 0 0 0);
     white-space: nowrap;
 }
+
+/* Long lines scroll sideways; keep that scrollbar discreet, in every mode */
+.gh-code pre {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-dark-border) transparent;
+}

@@ -62,27 +62,32 @@
         return text;
     }
 
-    /* navigator.clipboard needs HTTPS; fall back to the old API elsewhere */
+    /* The old copy API: still works where the Clipboard API is missing (plain
+       HTTP) or refused (some embedded browsers and webviews deny it) */
+    function legacyCopy(text) {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        var ok = false;
+        try {
+            ok = document.execCommand('copy');
+        } catch (e) {}
+        document.body.removeChild(textarea);
+        return ok ? Promise.resolve() : Promise.reject();
+    }
+
     function copy(text) {
         if (navigator.clipboard && window.isSecureContext) {
-            return navigator.clipboard.writeText(text);
+            return navigator.clipboard.writeText(text).catch(function () {
+                return legacyCopy(text);
+            });
         }
 
-        return new Promise(function (resolve, reject) {
-            var textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.setAttribute('readonly', '');
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            var ok = false;
-            try {
-                ok = document.execCommand('copy');
-            } catch (e) {}
-            document.body.removeChild(textarea);
-            ok ? resolve() : reject();
-        });
+        return legacyCopy(text);
     }
 
     blocks.forEach(function (pre) {
