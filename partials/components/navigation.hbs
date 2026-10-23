@@ -10,6 +10,7 @@
                 {{/if}}
             </a>
             {{> "search-toggle"}}
+            {{> "color-mode-toggle"}}
             <button class="gh-burger gh-icon-button" aria-label="{{t "Menu"}}">
                 {{> "icons/burger"}}
                 {{> "icons/close"}}
@@ -26,6 +27,7 @@
         </nav>
 
         <div class="gh-navigation-actions">
+            {{> "color-mode-toggle"}}
             {{#unless @site.members_enabled}}
                 {{^match navigationLayout "Stacked"}}
                     {{> "search-toggle"}}

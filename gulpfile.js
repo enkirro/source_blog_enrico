@@ -84,8 +84,9 @@ function zipper(done) {
             '!pnpm-workspace.yaml',
             '!AGENTS.md',
             '!CLAUDE.md',
-            '!gulpfile.js'
-        ]),
+            '!gulpfile.js',
+            '!locales-local', '!locales-local/**'
+        ], {encoding: false}), // Gulp 5 reads files as UTF-8 by default, which corrupts fonts and images
         zip(filename),
         dest('dist/')
     ], handleError(done));

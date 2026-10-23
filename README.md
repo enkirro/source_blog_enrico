@@ -4,6 +4,20 @@ The default theme for [Ghost](http://github.com/tryghost/ghost/). This is the la
 
 &nbsp;
 
+# Cambios de este fork (enrico.es)
+
+Sobre Source, este fork añade:
+
+- **Modos de color oscuro / claro / terminal**: botón en la navegación que los alterna. La elección se guarda en el navegador del visitante y se aplica antes del primer pintado (sin parpadeo). El modo por defecto se elige en *Diseño → Default color mode* (`Dark`, `Light`, `Terminal` o `System`, que sigue el ajuste del dispositivo). Código: `partials/color-mode.hbs`, `partials/color-mode-toggle.hbs`, `assets/js/color-mode.js` y la sección 23.4 de `assets/css/screen.css`.
+- **Bloques de código con lenguaje y botón Copiar**: `assets/js/code-copy.js` y la sección 23.5 del CSS. En los bloques marcados como `console`, solo se copian las líneas que empiezan por `$ ` (sin el prompt), para que la salida de los comandos no acabe pegada en la terminal.
+- Widget de tags en la barra lateral, página `/tags/` y estilos propios (sección 23 del CSS).
+- Traducciones al español en `locales-local/es.json` (el build las vuelca en `locales/es.json`; edita siempre la de `locales-local`).
+- Corrección en `gulpfile.js`: `pnpm zip` corrompía fuentes e imágenes del zip (Gulp 5 lee como UTF-8 por defecto).
+
+Todo el CSS propio está al final de `assets/css/screen.css`, en la sección 23, para que actualizar desde upstream no genere conflictos.
+
+&nbsp;
+
 # First time using a Ghost theme?
 
 Ghost uses a simple templating language called [Handlebars](http://handlebarsjs.com/) for its themes.

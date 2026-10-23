@@ -3511,3 +3511,244 @@ over the ones above because they come last.
     color: var(--color-white);
     opacity: 0.4;
 }
+
+/* 23.4. Colour modes (dark / light / terminal) */
+
+/* The mode is set on <html data-color-mode="…"> by partials/color-mode.hbs before
+   the first paint. Dark and light reuse Source's own has-light-text /
+   has-dark-text variables; terminal adds its own palette on top. */
+
+:root[data-color-mode="light"] {
+    color-scheme: light;
+}
+
+:root[data-color-mode="dark"],
+:root[data-color-mode="terminal"] {
+    color-scheme: dark;
+}
+
+/* The accent colour is picked for light backgrounds; lift it on dark ones so
+   links and tags stay readable */
+:root[data-color-mode="dark"] :is(.gh-content a, figcaption a, .gh-article-tag) {
+    color: color-mix(in srgb, var(--ghost-accent-color) 60%, #fff);
+}
+
+/* Toggle button: only the icon of the active mode is shown */
+.gh-color-mode-icon {
+    display: none;
+}
+
+:root:not([data-color-mode]) .gh-color-mode-icon.is-dark,
+:root[data-color-mode="dark"] .gh-color-mode-icon.is-dark,
+:root[data-color-mode="light"] .gh-color-mode-icon.is-light,
+:root[data-color-mode="terminal"] .gh-color-mode-icon.is-terminal {
+    display: block;
+}
+
+/* Without JavaScript the toggle can't do anything, so don't show it */
+@media (scripting: none) {
+    .gh-color-mode {
+        display: none !important;
+    }
+}
+
+/* Same placement rules as the search button: in the brand row on mobile,
+   with the other actions on desktop */
+@media (max-width: 767px) {
+    #gh-navigation .gh-navigation-brand {
+        grid-template-columns: 1fr auto auto auto;
+    }
+
+    .gh-navigation-actions .gh-color-mode {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .gh-navigation-brand .gh-color-mode {
+        display: none;
+    }
+}
+
+/* Terminal palette */
+:root[data-color-mode="terminal"] {
+    --terminal-green: #4ade80;
+    --terminal-text: #c9f7d3;
+    --ghost-accent-color: var(--terminal-green);
+    --color-darker-gray: var(--terminal-text);
+    --color-secondary-text: rgb(201 247 211 / 0.6);
+    --color-lighter-gray: rgb(74 222 128 / 0.07);
+    --color-border: rgb(74 222 128 / 0.16);
+    --color-dark-border: rgb(74 222 128 / 0.45);
+    --font-sans: var(--font-mono);
+    --font-serif: var(--font-sans);
+    --font-serif-alt: var(--font-sans);
+    --gh-font-heading: var(--font-sans);
+    --gh-font-body: var(--font-sans);
+}
+
+:root[data-color-mode="terminal"] ::selection {
+    color: #04160a;
+    background-color: var(--terminal-green);
+}
+
+/* Monospace runs wider than Inter, so tighten the body text a touch */
+:root[data-color-mode="terminal"] .gh-content {
+    font-size: 0.94em;
+}
+
+:root[data-color-mode="terminal"] :is(.is-title, .gh-content :is(h2, h3)) {
+    letter-spacing: -0.01em;
+    text-shadow: 0 0 14px rgb(74 222 128 / 0.22);
+}
+
+/* A shell prompt in front of the post title and headings */
+:root[data-color-mode="terminal"] .gh-article-title::before {
+    content: "$ ";
+    color: var(--terminal-green);
+}
+
+:root[data-color-mode="terminal"] .gh-content h2::before {
+    content: "## ";
+    color: var(--terminal-green);
+    opacity: 0.6;
+}
+
+:root[data-color-mode="terminal"] .gh-content h3::before {
+    content: "### ";
+    color: var(--terminal-green);
+    opacity: 0.6;
+}
+
+:root[data-color-mode="terminal"] :is(.gh-button, .gh-navigation .gh-button, .gh-footer .gh-button):not(.gh-button-share) {
+    color: #04160a;
+    background-color: var(--terminal-green);
+}
+
+/* An accent-coloured header or footer would turn bright green; keep them dark */
+:root[data-color-mode="terminal"] :is(.gh-navigation, .gh-footer).has-accent-color,
+:root[data-color-mode="terminal"] .gh-navigation.has-accent-color .gh-navigation-actions {
+    --color-darker-gray: var(--terminal-text);
+    --color-secondary-text: rgb(201 247 211 / 0.6);
+    --color-lighter-gray: rgb(74 222 128 / 0.07);
+    --color-border: rgb(74 222 128 / 0.16);
+    background-color: var(--background-color);
+}
+
+:root[data-color-mode="terminal"] .gh-content blockquote:not([class]) {
+    border-left-color: var(--terminal-green);
+}
+
+/* 23.5. Code blocks: language label and copy button */
+
+/* assets/js/code-copy.js wraps every code block in .gh-code and adds the bar */
+
+/* Use JetBrains Mono for code on every OS. "Theme Mono" is the copy bundled with
+   the theme (declared in partials/color-mode.hbs); it only downloads on pages
+   that actually show code, or in terminal mode */
+:root {
+    --font-mono: "JetBrains Mono", "Theme Mono", Menlo, Consolas, Monaco, "Liberation Mono", "Lucida Console", monospace;
+}
+
+.gh-content pre code {
+    font-family: inherit;
+}
+
+.gh-code {
+    overflow: hidden;
+    font-family: var(--font-mono);
+    background-color: var(--color-lighter-gray);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+}
+
+.gh-content .gh-code pre {
+    margin: 0;
+    background: transparent;
+    border-radius: 0;
+}
+
+.gh-code-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 36px;
+    padding: 4px 6px 4px 16px;
+    font-size: 1.2rem;
+    line-height: 1;
+    color: var(--color-secondary-text);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.gh-code-lang {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
+}
+
+.gh-code-copy {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    margin-left: auto;
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    color: inherit;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+}
+
+.gh-code-copy:hover {
+    color: var(--color-darker-gray);
+    background-color: var(--color-lighter-gray);
+}
+
+.gh-code-copy:focus-visible {
+    outline: 2px solid var(--ghost-accent-color);
+    outline-offset: 1px;
+}
+
+.gh-code-copy svg {
+    width: 14px;
+    height: 14px;
+}
+
+.gh-code-copy .is-done {
+    display: none;
+}
+
+.gh-code-copy.is-copied {
+    color: var(--color-darker-gray);
+    border-color: var(--color-border);
+}
+
+.gh-code-copy.is-copied .is-idle {
+    display: none;
+}
+
+.gh-code-copy.is-copied .is-done {
+    display: block;
+}
+
+:root[data-color-mode="terminal"] .gh-code {
+    background-color: #050806;
+}
+
+:root[data-color-mode="terminal"] .gh-code-copy.is-copied {
+    color: var(--terminal-green);
+}
+
+.gh-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}

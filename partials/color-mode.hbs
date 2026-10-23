@@ -1,0 +1,104 @@
+{{!--
+    Colour modes: dark, light and terminal.
+
+    This runs in <head>, before the first paint, so the page never flashes the
+    wrong colours. It replaces Source's original contrast script and keeps its
+    behaviour: the background colour from Design settings is still used, as long
+    as it suits the active mode. The toggle in the navigation calls
+    window.setColorMode(), defined here, so the logic lives in one place.
+--}}
+<style>
+    @font-face {
+        font-family: "Theme Mono";
+        font-style: normal;
+        font-weight: 100 800;
+        font-display: swap;
+        src: url({{asset "fonts/jetbrains-mono-roman.woff2"}}) format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+</style>
+<script>
+    (function () {
+        var root = document.documentElement;
+        var STORAGE_KEY = 'color-mode';
+        var MODES = ['dark', 'light', 'terminal'];
+        var DEFAULT_MODE = '{{#match @custom.default_color_mode "Light"}}light{{else match @custom.default_color_mode "Terminal"}}terminal{{else match @custom.default_color_mode "System"}}system{{else}}dark{{/match}}';
+        var BACKGROUNDS = {dark: '#15171a', light: '#ffffff', terminal: '#0a0e0b'};
+        var systemQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+
+        /* Brightness of a hex colour, 0-255 (YIQ formula, as in the original Source script) */
+        function brightness(hex) {
+            hex = (hex || '').trim().replace('#', '');
+            if (hex.length === 3) {
+                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            }
+            if (!/^[0-9a-f]{6}$/i.test(hex)) {
+                return null;
+            }
+            var r = parseInt(hex.substr(0, 2), 16);
+            var g = parseInt(hex.substr(2, 2), 16);
+            var b = parseInt(hex.substr(4, 2), 16);
+            return ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        }
+
+        var siteBackground = getComputedStyle(root).getPropertyValue('--background-color').trim();
+        var siteBrightness = brightness(siteBackground);
+
+        function storedMode() {
+            try {
+                var value = localStorage.getItem(STORAGE_KEY);
+                return MODES.indexOf(value) > -1 ? value : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function resolve(mode) {
+            if (MODES.indexOf(mode) > -1) {
+                return mode;
+            }
+            return systemQuery && systemQuery.matches ? 'light' : 'dark';
+        }
+
+        function apply(mode) {
+            var background = BACKGROUNDS[mode];
+
+            /* Keep the background picked in Design settings when it fits the mode */
+            if (siteBrightness !== null) {
+                if (mode === 'dark' && siteBrightness < 128) background = siteBackground;
+                if (mode === 'light' && siteBrightness >= 128) background = siteBackground;
+            }
+
+            root.setAttribute('data-color-mode', mode);
+            root.style.setProperty('--background-color', background);
+            root.classList.remove('has-light-text', 'has-dark-text');
+            root.classList.add(mode === 'light' ? 'has-dark-text' : 'has-light-text');
+        }
+
+        window.getColorMode = function () {
+            return root.getAttribute('data-color-mode');
+        };
+
+        window.setColorMode = function (mode) {
+            if (MODES.indexOf(mode) === -1) return;
+            try {
+                localStorage.setItem(STORAGE_KEY, mode);
+            } catch (e) {}
+            apply(mode);
+        };
+
+        apply(resolve(storedMode() || DEFAULT_MODE));
+
+        /* "System" follows the OS live, until the visitor picks a mode */
+        if (systemQuery && systemQuery.addEventListener) {
+            systemQuery.addEventListener('change', function () {
+                if (!storedMode() && DEFAULT_MODE === 'system') apply(resolve('system'));
+            });
+        }
+
+        /* Keep other open tabs in sync */
+        window.addEventListener('storage', function (e) {
+            if (e.key === STORAGE_KEY) apply(resolve(storedMode() || DEFAULT_MODE));
+        });
+    })();
+</script>
