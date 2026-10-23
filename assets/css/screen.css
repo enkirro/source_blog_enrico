@@ -3512,7 +3512,24 @@ over the ones above because they come last.
     opacity: 0.4;
 }
 
-/* 23.4. Colour modes (dark / light / terminal) */
+/* 23.4. Long site title */
+
+/* "Aceituna Informática con Suerte" overflowed the header on tablets and the
+   footer on phones. Let it wrap there, only when it doesn't fit, as Source
+   already does for the header on phones */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .gh-navigation-logo {
+        white-space: normal;
+    }
+}
+
+@media (max-width: 767px) {
+    .gh-footer-logo {
+        white-space: normal;
+    }
+}
+
+/* 23.5. Colour modes (dark / light / terminal) */
 
 /* The mode is set on <html data-color-mode="…"> by partials/color-mode.hbs before
    the first paint. Dark and light reuse Source's own has-light-text /
@@ -3625,6 +3642,22 @@ over the ones above because they come last.
     background-color: var(--terminal-green);
 }
 
+/* Monospace is much wider than Inter: tighten the header so a long site
+   title still fits next to the menu */
+:root[data-color-mode="terminal"] :is(.gh-navigation-logo, .gh-footer-logo) {
+    letter-spacing: -0.04em;
+}
+
+@media (min-width: 992px) {
+    :root[data-color-mode="terminal"] .gh-navigation.is-left-logo .gh-navigation-menu {
+        margin-right: 24px;
+    }
+
+    :root[data-color-mode="terminal"] .gh-navigation.is-middle-logo .gh-navigation-menu {
+        margin-right: 24px;
+    }
+}
+
 /* An accent-coloured header or footer would turn bright green; keep them dark */
 :root[data-color-mode="terminal"] :is(.gh-navigation, .gh-footer).has-accent-color,
 :root[data-color-mode="terminal"] .gh-navigation.has-accent-color .gh-navigation-actions {
@@ -3639,7 +3672,7 @@ over the ones above because they come last.
     border-left-color: var(--terminal-green);
 }
 
-/* 23.5. Code blocks: language label and copy button */
+/* 23.6. Code blocks: language label and copy button */
 
 /* assets/js/code-copy.js wraps every code block in .gh-code and adds the bar */
 
